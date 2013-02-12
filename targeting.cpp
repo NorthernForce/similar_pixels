@@ -1,7 +1,7 @@
 /*
 *  targeting.cpp
 *
-*  Created on: Feb 7, 2013
+*  Created on: Feb 11, 2013
 *      Author: Alec Robinson
 *
 * Allows a user to select pixels samples and have similar pixels detected.
@@ -16,15 +16,15 @@
 using namespace cv;
 using namespace std;
 
-bool editcurrent = false;
+bool editcurrent = false; //is true just after the user selects a pixel. when true, the program will get the rgb values of the selected pixel
 
-int thresh = 30;
-int catnumx[99], catnumy[99];
-int currentpix = 0;
-int bee[99], jee[99], are[99];
+int thresh = 30; 
+int catnumx[99], catnumy[99]; //x and y of pixels selected by the user
+int currentpix = 0; //number of selected pixels
+int bee[99], jee[99], are[99]; //rgb values of selected pixels (at the time of selection)
 
 bool findcenter = true;
-int runningx, runningy, avrgx, avrgy;
+int runningx, runningy, avrgx, avrgy; //for averaging; running total of x values, y values, and the calculated averages
 
 void my_mouse_callback( int event, int x, int y, int flags, void* param );
 
@@ -83,8 +83,8 @@ namespace {
         
         namedWindow("Original Image", CV_WINDOW_KEEPRATIO);
 	namedWindow("Threshold Image", CV_WINDOW_KEEPRATIO);
-        Mat frame;
-	Mat newframe;
+        Mat frame; //mat of the original image
+	Mat newframe; //mat of the threshholded (threshheld?) image
        
 
 	cvCreateTrackbar( "Threshold", "Threshold Image", &thresh, 100, NULL );
@@ -93,10 +93,10 @@ namespace {
 	  
 	
             
-	    capture >> newframe;
+	  capture >> newframe; //I'm not certain I actually need this line anymore
 
 	    	    
-	    if (editcurrent)
+	  if (editcurrent) //reads the rgb of the newly selected pixel
 	      {
 		int z = currentpix-1;
 		bee[z] = newframe.at<cv::Vec3b>(catnumx[z],catnumy[z])[0];
@@ -106,7 +106,7 @@ namespace {
 	      }
 	      
 
-	    int found = 0;
+	    int found = 0; //number of matches found (used for averaging)
 	    runningx = 0;
 	    runningy = 0;
 	    for(int i = 0; i < frame.rows; i++)
@@ -120,9 +120,9 @@ namespace {
 		  for(int h = 0; h <= currentpix; h++)
 		    {
 
-		      if(catnumx[h]+catnumy[h] != 0) if ((thisbee<bee[h]+thresh && thisbee>bee[h]-thresh) && (thisjee<jee[h]+thresh && thisjee>jee[h]-thresh) && (thisare<are[h]+thresh && thisare>are[h]-thresh))
+		      if(catnumx[h]+catnumy[h] != 0) if ((thisbee<bee[h]+thresh && thisbee>bee[h]-thresh) && (thisjee<jee[h]+thresh && thisjee>jee[h]-thresh) && (thisare<are[h]+thresh && thisare>are[h]-thresh)) //if it's a match
 			{
-			  newframe.at<cv::Vec3b>(i,j)[0] = 255;
+			  newframe.at<cv::Vec3b>(i,j)[0] = 255; //set to white
 			  newframe.at<cv::Vec3b>(i,j)[1] = 255;
 			  newframe.at<cv::Vec3b>(i,j)[2] = 255;
 			  if (findcenter && matches==0) {runningx += i; runningy += j; found++;}
@@ -142,12 +142,12 @@ namespace {
 	    }
 	    if (findcenter)
 	      {  
-		if (found>0){avrgx = runningx/found;
-		  avrgy = runningy/found;}
+		if (found>0){avrgx = runningx/found; //average the x
+		  avrgy = runningy/found;} //average the y
 		runningx = 0;
 		runningy = 0;
 		Point thecenter = Point(avrgy, avrgx);
-		ellipse(newframe, thecenter, Size(20,20), 0, 0, 360, Scalar(255,0,238), 2,8);
+		ellipse(newframe, thecenter, Size(20,20), 0, 0, 360, Scalar(255,0,238), 2,8); //draw circle
 	      }
 	    imshow("Threshold Image", newframe);
 	    capture >> frame;
@@ -155,9 +155,9 @@ namespace {
 
             imshow("Original Image", frame);
 	    IplImage ipl = frame;
-	    cvSetMouseCallback( "Original Image", my_mouse_callback, (void*) &ipl);
+	    cvSetMouseCallback( "Original Image", my_mouse_callback, (void*) &ipl); //get mouse input
 	   
-            char key = (char)waitKey(5);
+            char key = (char)waitKey(5); //get keyboard input
 	    if (key == 'q') break;
 	    if (key == 'c') {findcenter = !findcenter; runningx = 0; runningy = 0; avrgx = 0; avrgy = 0;}
 	}
@@ -182,7 +182,7 @@ int main(int ac, char** av) {
     VideoCapture capture(arg); 
     if (!capture.isOpened())
         capture.open(atoi(arg.c_str()));
-        capture.set(CV_CAP_PROP_FRAME_WIDTH, 240);
+    capture.set(CV_CAP_PROP_FRAME_WIDTH, 240); //this line and the following line is necessary only for the raspberry pi. if you were to delete these on the pi, you would get timeout errors
 	capture.set(CV_CAP_PROP_FRAME_HEIGHT, 320);
     if (!capture.isOpened()) {
         cerr << "Failed to open a video device or video file!\n" << endl;
