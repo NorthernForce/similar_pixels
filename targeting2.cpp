@@ -1,7 +1,7 @@
 /*
 *  targeting.cpp
 *
-*  Created on: Feb 11, 2013
+*  Created on: Feb 13, 2013
 *      Author: Alec Robinson
 *
 * Allows a user to select pixels samples and have similar pixels detected.
@@ -19,7 +19,7 @@ using namespace std;
 bool editcurrent = false; //is true just after the user selects a pixel. when true, the program will get the rgb values of the selected pixel
 
 int thresh = 30; 
-int catnumx[99], catnumy[99]; //x and y of pixels selected by the user
+int catnumx, catnumy; //x and y of latest pixel selected by the user
 int currentpix = 0; //number of selected pixels
 int bee[99], jee[99], are[99]; //rgb values of selected pixels (at the time of selection)
 
@@ -50,15 +50,15 @@ namespace {
     for (;;) {
 	  	
             
-       capturen >> newframe; //I'm not certain I actually need this line anymore
+      capturen >> newframe;
 
 	    	    
 	  if (editcurrent) //reads the rgb of the newly selected pixel
 	      {
 		int z = currentpix-1;
-		bee[z] = newframe.at<cv::Vec3b>(catnumx[z],catnumy[z])[0];
-		jee[z] = newframe.at<cv::Vec3b>(catnumx[z],catnumy[z])[1];
-		are[z] = newframe.at<cv::Vec3b>(catnumx[z],catnumy[z])[2];
+		bee[z] = newframe.at<cv::Vec3b>(catnumx,catnumy)[0];
+		jee[z] = newframe.at<cv::Vec3b>(catnumx,catnumy)[1];
+		are[z] = newframe.at<cv::Vec3b>(catnumx,catnumy)[2];
 		editcurrent = false;
 	      }
 	      
@@ -77,7 +77,7 @@ namespace {
 		  for(int h = 0; h <= currentpix; h++)
 		    {
 
-		      if(catnumx[h]+catnumy[h] != 0) if ((thisbee<bee[h]+thresh && thisbee>bee[h]-thresh) && (thisjee<jee[h]+thresh && thisjee>jee[h]-thresh) && (thisare<are[h]+thresh && thisare>are[h]-thresh)) //if it's a match
+		      if(catnumx+catnumy != 0) if ((thisbee<bee[h]+thresh && thisbee>bee[h]-thresh) && (thisjee<jee[h]+thresh && thisjee>jee[h]-thresh) && (thisare<are[h]+thresh && thisare>are[h]-thresh)) //if it's a match
 			{
 			  newframe.at<cv::Vec3b>(i,j)[0] = 255; //set to white
 			  newframe.at<cv::Vec3b>(i,j)[1] = 255;
@@ -133,8 +133,8 @@ namespace {
 	switch( event ){
 	
 		case CV_EVENT_LBUTTONDOWN:
-		  catnumx[currentpix] = y;
-		  catnumy[currentpix] = x;
+		  catnumx = y;
+		  catnumy = x;
 		  currentpix++;
 		  editcurrent = true;
 		  break;
@@ -142,8 +142,8 @@ namespace {
 	        case CV_EVENT_RBUTTONDOWN:
 		  for (int g = 0; g <= currentpix; g++)
 		    {
-		      catnumx[g] = 0;
-		      catnumy[g] = 0;
+		      catnumx = 0;
+		      catnumy = 0;
 		    }
 		  currentpix = 0;
 		  break;
