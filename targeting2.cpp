@@ -37,6 +37,21 @@ namespace {
 
   void targetinginit ()
   {
+    cout << "Left click to collect samples, right click to clear them.\n";
+    cout << "'c' to toggle center finding.\n";
+    cout << "Press q to quit, but only if you really mean it.\n";
+
+    std::string arg = "0";
+    VideoCapture capture(arg); 
+    if (!capture.isOpened())
+        capture.open(atoi(arg.c_str()));
+    capture.set(CV_CAP_PROP_FRAME_WIDTH, 240); //this line and the following line is necessary only for the raspberry pi. if you were to delete these on the pi, you would get timeout errors
+	capture.set(CV_CAP_PROP_FRAME_HEIGHT, 320);
+    if (!capture.isOpened()) {
+      cerr << "Failed to open a video device or video file!\n" << endl;
+    }
+    capturen = capture;
+
     namedWindow("Original Image", CV_WINDOW_KEEPRATIO);
     namedWindow("Threshold Image", CV_WINDOW_KEEPRATIO);
     
@@ -160,21 +175,7 @@ int main(int ac, char** av) {
  
 
 
-     cout << "Left click to collect samples, right click to clear them.\n";
-     cout << "'c' to toggle center finding.\n";
-     cout << "Press q to quit, but only if you really mean it.\n";
-
-    std::string arg = "0";
-    VideoCapture capture(arg); 
-    if (!capture.isOpened())
-        capture.open(atoi(arg.c_str()));
-    capture.set(CV_CAP_PROP_FRAME_WIDTH, 240); //this line and the following line is necessary only for the raspberry pi. if you were to delete these on the pi, you would get timeout errors
-	capture.set(CV_CAP_PROP_FRAME_HEIGHT, 320);
-    if (!capture.isOpened()) {
-      cerr << "Failed to open a video device or video file!\n" << endl;
-        return 1;
-    }
-    capturen = capture;
+     
     targetinginit();
     return targetingprocess();
 }
