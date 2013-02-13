@@ -154,46 +154,24 @@ namespace {
 
 
 
-    void help(char** av) {
-        cout <<
-            "Usage:\n" << av[0] << " <video device number>\n"
-            
-            
-            << "\tThis is a program to select pixels and find others similar in color.\n"
-	    << "\tLeft click in the original image to select pixels.\n"
-	  
-	     << "\tRight click to clear selection.\n"  
-	  
-		       << "\tUse 'c' to toggle center finding.\n"
-
-            << "\tThe program captures frames from a camera connected to your computer.\n"
-            << "\tTo find the video device number, try ls /dev/video* \n"
-            << "\tYou may also pass a video file, like my_vide.avi instead of a device number\n"
-			 << "\tIf you honestly have no idea what your device number is, I'd try 0.\n"
-            << endl;
- 
-    }
+  
 
 int main(int ac, char** av) {
  
-    if (ac != 2) {
-        help(av);
-        return 1;
-    }
+
 
      cout << "Left click to collect samples, right click to clear them.\n";
      cout << "'c' to toggle center finding.\n";
      cout << "Press q to quit, but only if you really mean it.\n";
 
-    std::string arg = av[1];
+    std::string arg = "0";
     VideoCapture capture(arg); 
     if (!capture.isOpened())
         capture.open(atoi(arg.c_str()));
     capture.set(CV_CAP_PROP_FRAME_WIDTH, 240); //this line and the following line is necessary only for the raspberry pi. if you were to delete these on the pi, you would get timeout errors
 	capture.set(CV_CAP_PROP_FRAME_HEIGHT, 320);
     if (!capture.isOpened()) {
-        cerr << "Failed to open a video device or video file!\n" << endl;
-        help(av);
+      cerr << "Failed to open a video device or video file!\n" << endl;
         return 1;
     }
     capturen = capture;
